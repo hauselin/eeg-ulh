@@ -1,0 +1,7 @@
+term,results
+(Intercept),"b = 0.50, SE = 0.002, t(64) = 317.21, p < .001, r = 1.00"
+offerReward,"b = 0.001, SE = 0.004, t(85) = 0.40, p = .690, r = 0.04"
+offerProbability,"b = -0.007, SE = 0.003, t(15196) = -1.87, p = .061, r = 0.02"
+choiceC,"b = 8e-04, SE = 0.002, t(9426) = 0.55, p = .579, r = 0.006"
+rtC,"b = -3e-04, SE = 0.002, t(44) = -0.20, p = .840, r = 0.03"
+offerReward:offerProbability,"b = 0.02, SE = 0.02, t(73) = 1.19, p = .237, r = 0.14"

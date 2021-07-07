@@ -1,0 +1,6 @@
+term,results
+(Intercept),"b = 0.84, SE = 0.36, z = 2.33, p = .020, r = 0.22"
+offerReward,"b = 11.09, SE = 0.97, z = 11.45, p < .001, r = 0.95"
+offerProbability,"b = 10.06, SE = 0.81, z = 12.37, p < .001, r = 0.94"
+trial,"b = −4.83, SE = 1.27, z = −3.82, p < .001, r = −0.80"
+offerReward:offerProbability,"b = 17.68, SE = 2.98, z = 5.93, p < .001, r = 0.98"

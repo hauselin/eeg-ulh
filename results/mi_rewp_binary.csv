@@ -1,0 +1,9 @@
+term,results
+(Intercept),"b = 0.39, SE = 0.006, t(246) = 68.87, p < .001, r = 0.98"
+choiceC,"b = 0.006, SE = 0.002, t(63) = 3.41, p = .001, r = 0.40"
+offerProbability,"b = 0.002, SE = 0.004, t(15184) = 0.49, p = .623, r = 0.004"
+outcomeRewardBinary,"b = 7e-04, SE = 0.002, t(68) = 0.30, p = .765, r = 0.04"
+Pz_p3C,"b = 0.45, SE = 0.02, t(62) = 27.13, p < .001, r = 0.96"
+trial,"b = -0.05, SE = 0.01, t(63) = -4.35, p < .001, r = 0.48"
+gripSuccess,"b = -8e-04, SE = 0.004, t(98) = -0.19, p = .849, r = 0.02"
+offerProbability:outcomeRewardBinary,"b = 0.02, SE = 0.007, t(17144) = 2.55, p = .011, r = 0.02"

@@ -1,0 +1,197 @@
+---
+title: "analysis"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+chunk_output_type: console
+---
+
+```{r}
+rm(list = ls())
+library(tidyverse); library(data.table); library(lme4); library(lmerTest); library(ggbeeswarm); library(glue); library(hausekeep); library(sjPlot); library(performance); library(interactions)
+source("helpfuncs.R")
+```
+
+```{r read data}
+dt1 <- fread("../data/data.csv")
+```
+
+```{r trim RTs}
+dt1[rt < .2, rt := NA]
+dt1[, rt := outliersMAD(rt, 4), by = subject]
+dt1[is.na(rt), .N] / dt1[, .N] * 100
+dt1 <- dt1[!is.na(rt)]
+```
+
+```{r remove outliers/extreme neural data points}
+pre <- dt1[is.na(rewp_FCz), .N]
+dt1[, rewp_FCz := outliersMAD(rewp_FCz, 4), by = subject]
+post <- dt1[is.na(rewp_FCz), .N]
+(post - pre) / pre * 100
+
+pre <- dt1[is.na(Pz_p3), .N]
+dt1[, Pz_p3 := outliersMAD(Pz_p3, 4), by = subject]
+post <- dt1[is.na(Pz_p3), .N]
+(post - pre) / pre * 100
+
+pre <- dt1[is.na(fcz_choice_theta_win2_bc), .N]
+dt1[, fcz_choice_theta_win2_bc := outliersMAD(fcz_choice_theta_win2_bc), by = subject]
+post <- dt1[is.na(fcz_choice_theta_win2_bc), .N]
+(post - pre) / pre * 100
+
+pre <- dt1[is.na(fcz_choice_theta_entire4sChoice), .N]
+dt1[, fcz_choice_theta_entire4sChoice := outliersMAD(fcz_choice_theta_entire4sChoice), by = subject]
+post <- dt1[is.na(fcz_choice_theta_entire4sChoice), .N]
+(post - pre) / pre * 100
+```
+
+```{r rescale neural variables to 0,1}
+# DVs
+dvs <- c("rewp_FCz", 
+         "fcz_choice_theta_win1_bc",
+         "fcz_choice_theta_win2_bc", 
+         "fcz_choice_theta_entire4sChoice", 
+         "Pz_p3")
+
+# max val = 1.0; min val = 0
+dt1[, (dvs) := lapply(.SD, function(x) scale_minmax(x, c(0, 1))), .SDcols = dvs] 
+```
+
+# Descriptives
+
+```{r}
+dt1[, .(gripSuccess = mean(gripSuccess, na.rm = T), stdev = sd(gripSuccess, na.rm = T)), 
+    keyby = .(subject, choice, offerProbability)][, .(gripSuccess = mean(gripSuccess, na.rm = T), stdev = sd(gripSuccess, na.rm = T)), keyby = .(choice, offerProbability)]
+```
+
+# Grip success in high vs low effort choice
+
+```{r}
+m_grip <- glmer(gripSuccess ~ choiceC + (1 + choiceC | subject), data = dt1, family = 'binomial')
+summaryh(m_grip)
+```
+
+# The Baseline Behavioral Model
+```{r}
+# Choice made = Reward offered + Probability + EV + Trial number
+mi_choice0 <- glmer(choice ~ offerReward * offerProbability + trial + 
+                       (1 + offerReward * offerProbability + trial || subject), 
+                   data = dt1, family = "binomial", 
+                   control = glmerControl(optimizer ='bobyqa', optCtrl = list(maxfun = 2e4)))
+summaryh(mi_choice0)
+export_results(mi_choice0, "mi_choice0")
+```
+
+# The Behavioral Model with FMT
+```{r}
+# Mean-center phasic FMT 
+dt1[, fcz_choice_theta_win2_bcC := fcz_choice_theta_win2_bc - mean(fcz_choice_theta_win2_bc, na.rm = T), by = .(subject)]
+
+# Choice made = Reward offered + Probability + EV + Trial number + FMT + FMT x EV 
+# Phasic FMT
+mi_choice1_phasictheta_interact <- glmer(choice ~ offerReward * offerProbability + trial + fcz_choice_theta_win2_bcC +                                          fcz_choice_theta_win2_bcC:offerReward:offerProbability + 
+                                           (1 + offerReward * offerProbability + trial + fcz_choice_theta_win2_bcC +                                              fcz_choice_theta_win2_bcC:offerReward:offerProbability || subject), 
+                                        data = dt1, family = "binomial", 
+                                        control = glmerControl(optimizer ='bobyqa', optCtrl = list(maxfun = 2e4)))
+summaryh(mi_choice1_phasictheta_interact)
+export_results(mi_choice1_phasictheta_interact, "mi_choice1_phasictheta_interact")
+```
+
+
+```{r}
+# Mean-center tonic FMT 
+dt1[, fcz_choice_theta_entire4sChoiceC := fcz_choice_theta_entire4sChoice - mean(fcz_choice_theta_entire4sChoice, na.rm = T), by = .(subject)]
+
+# Choice made = Reward offered + Probability + EV + Trial number + FMT + FMT x EV 
+# Tonic FMT
+mi_choice1_tonictheta_interact <- glmer(choice ~ offerReward * offerProbability + trial + 
+                                          fcz_choice_theta_entire4sChoiceC + fcz_choice_theta_entire4sChoiceC:offerReward:offerProbability +
+                                           (1 + offerReward * offerProbability + trial + 
+                                              fcz_choice_theta_entire4sChoiceC + fcz_choice_theta_entire4sChoiceC:offerReward:offerProbability || subject), 
+                                       data = dt1, family = "binomial", 
+                                       control = glmerControl(optimizer ='bobyqa', optCtrl = list(maxfun = 2e4)))
+summaryh(mi_choice1_tonictheta_interact)
+export_results(mi_choice1_tonictheta_interact, "mi_choice1_tonictheta_interact")
+```
+
+
+# The Choice Difficulty Model of FMT
+```{r}
+# mean-center RT
+dt1[, rtC := rt - mean(rt, na.rm = T), by = .(subject)]
+
+# FMT (phasic) = Reward offered + Probability + EV + Trial number + RT
+mi_thetap_rt <- lmer(fcz_choice_theta_win2_bc ~ offerReward * offerProbability + trial + rtC + 
+                        (1 + offerReward * offerProbability + trial + rtC || subject), 
+                    data = dt1, 
+                    control = lmerControl(optimizer ='bobyqa', optCtrl = list(maxfun = 2e4)))
+summaryh(mi_thetap_rt)
+export_results(mi_thetap_rt, "mi_thetap_rt")
+
+# FMT (tonic) = Reward offered + Probability + EV + Trial number + RT
+mi_thetat_rt <- lmer(fcz_choice_theta_entire4sChoice ~ offerReward * offerProbability + trial + rtC + 
+                        (1 + offerReward * offerProbability + trial + rtC || subject), 
+                    data = dt1, 
+                    control = lmerControl(optimizer ='bobyqa', optCtrl = list(maxfun = 2e4)))
+summaryh(mi_thetat_rt)
+export_results(mi_thetat_rt, "mi_thetat_rt")
+```
+
+
+# The Effort Selection Model of FMT
+```{r}
+# mean-center choice
+dt1[, choiceC := choice - mean(choice, na.rm = T), by = subject]
+
+# FMT (phasic) = Reward offered + Probability + EV + Trial number + Choice selected 
+mi_thetap_choice <- lmer(fcz_choice_theta_win2_bc ~ offerReward * offerProbability + trial + choiceC + 
+                           (1 + offerReward * offerProbability + trial + choiceC || subject), 
+                        data = dt1, 
+                        control = lmerControl(optimizer ='bobyqa', optCtrl = list(maxfun = 2e4)))
+summaryh(mi_thetap_choice)
+export_results(mi_thetap_choice, "mi_thetap_choice")
+
+# FMT (tonic) = Reward offered + Probability + EV + Trial number + Choice selected 
+mi_thetat_choice <- lmer(fcz_choice_theta_entire4sChoice ~ offerReward * offerProbability + trial + choiceC + 
+                            (1 + offerReward * offerProbability + trial + choiceC || subject), 
+                        data = dt1, 
+                        control = lmerControl(optimizer ='bobyqa', optCtrl = list(maxfun = 2e4)))
+summaryh(mi_thetat_choice)
+export_results(mi_thetat_choice, "mi_thetat_choice")
+```
+
+
+# The RewP Model
+```{r}
+# mean-center P300
+dt1[, Pz_p3C := Pz_p3 - mean(Pz_p3, na.rm = T), by = subject]
+
+# Single-trial RewP = Choice selected + Probability + binary-Reward outcome + Probability x binary-Reward outcome + single-trial P300 + Trial number 
+mi_rewp_binary <- lmer(rewp_FCz ~ choiceC + offerProbability + outcomeRewardBinary + offerProbability:outcomeRewardBinary + Pz_p3C + trial + (1 + choiceC + offerProbability + outcomeRewardBinary + offerProbability:outcomeRewardBinary + Pz_p3C + trial || subject), data = dt1, 
+               control = lmerControl(optimizer ='bobyqa', optCtrl = list(maxfun = 2e4)))
+
+summaryh(mi_rewp_binary)
+export_results(mi_rewp_binary, "mi_rewp_binary")
+
+
+# Supplementary analysis
+# Single-trial RewP = Choice selected + Probability + Reward outcome + Probability x Reward outcome + single-trial P300 + Trial number 
+mi_rewp <- lmer(rewp_FCz ~ outcomeReward*offerProbability + trial + Pz_p3C + choiceC +
+                   (1 + outcomeReward*offerProbability + trial + Pz_p3C + choiceC || subject),
+               data = dt1, 
+               control = lmerControl(optimizer ='bobyqa', optCtrl = list(maxfun = 2e4)))
+summaryh(mi_rewp)
+export_results(mi_rewp, "mi_rewp")
+```
+
+# Plot
+```{r interaction plot}
+interact_plot(mi_choice1_phasictheta_interact, 
+              pred=fcz_choice_theta_win2_bcC, 
+              modx=offerReward, 
+              mod2=offerProbability, 
+              mod2.labels = c('20%', '50%', '80% Probability'), 
+              legend.main = "Reward Offered", 
+              line.thickness = 1.2) +
+    labs(x = 'Phasic FMT power', y = "High-Effort Choice") 
+```

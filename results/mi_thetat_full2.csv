@@ -1,0 +1,9 @@
+term,results
+(Intercept),"b = 0.12, SE = 0.009, t(63) = 12.74, p < .001, r = 0.85"
+offerReward,"b = -2e-04, SE = 0.002, t(14536) = -0.09, p = .925, r = 8e-04"
+offerProbability,"b = -0.002, SE = 0.002, t(14063) = -1.02, p = .309, r = 0.009"
+trial,"b = 0.06, SE = 0.01, t(62) = 5.49, p < .001, r = 0.57"
+choiceC,"b = -0.001, SE = 0.001, t(61) = -0.97, p = .336, r = 0.12"
+rtC,"b = 0.003, SE = 0.002, t(53) = 1.85, p = .069, r = 0.25"
+fcz_choice_theta_win2_bcC,"b = 0.11, SE = 0.005, t(37) = 21.22, p < .001, r = 0.96"
+offerReward:offerProbability,"b = 0.003, SE = 0.01, t(14605) = 0.29, p = .775, r = 0.002"

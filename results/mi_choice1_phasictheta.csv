@@ -1,0 +1,7 @@
+term,results
+(Intercept),"b = 0.83, SE = 0.36, z = 2.32, p = .021, r = 0.22"
+offerReward,"b = 11.08, SE = 0.98, z = 11.34, p < .001, r = 0.95"
+offerProbability,"b = 10.16, SE = 0.78, z = 13.10, p < .001, r = 0.94"
+trial,"b = -4.78, SE = 1.28, z = -3.73, p < .001, r = -0.80"
+fcz_choice_theta_win2_bcC,"b = 0.30, SE = 0.40, z = 0.75, p = .452, r = 0.08"
+offerReward:offerProbability,"b = 16.75, SE = 2.89, z = 5.79, p < .001, r = 0.98"

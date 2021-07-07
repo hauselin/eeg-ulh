@@ -1,0 +1,8 @@
+term,results
+(Intercept),"b = 0.82, SE = 0.36, z = 2.29, p = .022, r = 0.22"
+offerReward,"b = 11.07, SE = 0.97, z = 11.40, p < .001, r = 0.95"
+offerProbability,"b = 10.05, SE = 0.77, z = 13.00, p < .001, r = 0.94"
+trial,"b = -4.76, SE = 1.29, z = -3.70, p < .001, r = -0.80"
+fcz_choice_theta_entire4sChoiceC,"b = -1.02, SE = 0.72, z = -1.41, p = .159, r = -0.27"
+offerReward:offerProbability,"b = 16.65, SE = 2.88, z = 5.77, p < .001, r = 0.98"
+trial:fcz_choice_theta_entire4sChoiceC,"b = 6.89, SE = 6.90, z = 1.00, p = .318, r = 0.88"

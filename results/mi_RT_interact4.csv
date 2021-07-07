@@ -1,0 +1,4 @@
+term,results
+(Intercept),"b = 0.88, SE = 0.02, t(63) = 43.44, p < .001, r = 0.98"
+trial,"b = -1.27, SE = 0.10, t(63) = -13.13, p < .001, r = 0.86"
+fcz_choice_theta_entire4sChoiceC,"b = 0.50, SE = 0.12, t(53) = 4.05, p < .001, r = 0.49"

@@ -1,0 +1,3 @@
+term,results
+(Intercept),"b = 0.39, SE = 0.006, t(226) = 64.26, p < .001, r = 0.97"
+gripSuccess,"b = 0.002, SE = 0.005, t(155) = 0.42, p = .677, r = 0.03"
