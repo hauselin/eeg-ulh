@@ -1,6 +1,6 @@
 A GitHub flavored Markdown textfile documenting a dataset.
 
-Generated using [docdata package](https://hauselin.github.io/docdata/) on 2021-07-07 14:10:12.
+Generated using [docdata package](https://hauselin.github.io/docdata/) on 2021-09-28 08:55:10.
 To cite this package, type citations("docdata") in console.
 
 ## Data source
@@ -20,7 +20,7 @@ data.csv
 ## Columns
 
 * Rows: 19968
-* Columns: 39
+* Columns: 46
 
 | Column                           | Type     | Description                                                        |
 | -------------------------------- | -------- | ------------------------------------------------------------------ |
@@ -63,6 +63,13 @@ data.csv
 | gripSuccessC                     | numeric  | gripSuccess centered                                               |
 | fcz_choice_theta_win1_bc         | numeric  |                                                                    |
 | fcz_choice_theta_win2_bc         | numeric  | phasic theta baseline corrected                                    |
+| ev_hard                          | numeric  | expected value EV of hard option                                   |
+| ev_easy                          | numeric  | expected value EV of easy option                                   |
+| ev_diff                          | numeric  | EV hard minus EV easy                                              |
+| sv_diff                          | numeric  | subjective value difference                                        |
+| indiff                           | numeric  | indiference point                                                  |
+| ev_diffC                         | numeric  | ev_diff subject-mean-centered                                      |
+| sv_diffC                         | numeric  | sv_diff subject-mean-centered                                      |
 
 End of documentation.
 

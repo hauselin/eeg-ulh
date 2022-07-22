@@ -1,0 +1,39 @@
+```{r}
+rm(list = ls())
+library(tidyverse); library(data.table)
+library(pwr); 
+theme_set(theme_minimal())
+
+
+t2d <- function(t, l2_n, pl2 = 0, pl12 = 0) {
+    return(t / sqrt(l2_n - pl12))
+}
+
+
+# predefined d values
+t <- seq(0.1, 5, by = 0.1)
+l2_n <- 64
+(d <- t2d(t, l2_n))
+
+res <- pwr.t.test(n = l2_n, d = d, type = "one.sample", alternative = "two.sided")
+res
+d0 <- data.table(es = res$d, power = res$power)
+d0
+
+# 80% power
+d0[, eighty := abs(power - 0.8)]
+pow80 <- d0[order(eighty)][1]
+pow80
+
+ggplot(d0, aes(es, power)) +
+    geom_vline(xintercept = pow80$es, size = 0.5, col = 'grey', lty = 'dashed') +
+    geom_hline(yintercept = pow80$power, size = 0.5, col = 'grey', lty = 'dashed') +
+    annotate('text', x = pow80$es + 0.08 , y = pow80$power - 0.05, label = '80% statistical power') +
+    geom_line(size = 1) +
+    geom_point(data = pow80, size = 3, col = "red") +
+    scale_y_continuous(limits = c(0, 1), n.breaks = 5) +
+    scale_x_continuous(n.breaks = 20) +
+    labs(x = "Observed effect size (Cohen's d)", y = "Statistical power when N = 64\n(two-sided test)")
+# ggsave("~/Desktop/_temp.png", dpi = 300, bg = 'white', width = 8, height = 5)
+```
+
